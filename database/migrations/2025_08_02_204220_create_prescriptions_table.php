@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('prescriptions', function (Blueprint $table) {
             $table->id();
+            $table->string('prescription_number')->unique();
+            $table->foreignId('patient_id')->constrained()->onDelete('cascade');
+            $table->foreignId('doctor_id')->constrained()->onDelete('cascade');
+            $table->foreignId('medical_record_id')->nullable()->constrained()->onDelete('cascade');
+            $table->date('prescribed_date');
+            $table->json('medications'); // Store medications as JSON
+            $table->text('instructions')->nullable();
+            $table->enum('status', ['active', 'completed', 'cancelled'])->default('active');
             $table->timestamps();
         });
     }

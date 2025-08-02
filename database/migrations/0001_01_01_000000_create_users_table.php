@@ -1,4 +1,5 @@
 <?php
+// database/migrations/2024_01_01_000001_add_additional_fields_to_users_table.php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -6,51 +7,31 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('first_name');
-    $table->string('last_name');
-    $table->string('email')->unique();
-    $table->timestamp('email_verified_at')->nullable();
-    $table->string('password');
-    $table->string('phone')->nullable();
-    $table->date('date_of_birth')->nullable();
-    $table->enum('gender', ['male', 'female', 'other'])->nullable();
-    $table->text('address')->nullable();
-    $table->string('profile_photo')->nullable();
-    $table->boolean('is_active')->default(true);
-            $table->rememberToken();
-            $table->timestamps();
-        });
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('first_name')->after('id');
+            $table->string('last_name')->after('first_name');
+            $table->string('phone')->nullable()->after('email');
+            $table->date('date_of_birth')->nullable()->after('phone');
+            $table->enum('gender', ['male', 'female', 'other'])->nullable()->after('date_of_birth');
+            $table->text('address')->nullable()->after('gender');
+            $table->string('profile_photo')->nullable()->after('address');
+            $table->boolean('is_active')->default(true)->after('profile_photo');
 
-        Schema::create('password_reset_tokens', function (Blueprint $table) {
-            $table->string('email')->primary();
-            $table->string('token');
-            $table->timestamp('created_at')->nullable();
-        });
-
-        Schema::create('sessions', function (Blueprint $table) {
-            $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
-            $table->string('ip_address', 45)->nullable();
-            $table->text('user_agent')->nullable();
-            $table->longText('payload');
-            $table->integer('last_activity')->index();
+            // Modify existing name column to be nullable since we're using first_name and last_name
+            $table->string('name')->nullable()->change();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
-        Schema::dropIfExists('users');
-        Schema::dropIfExists('password_reset_tokens');
-        Schema::dropIfExists('sessions');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn([
+                'first_name', 'last_name', 'phone', 'date_of_birth',
+                'gender', 'address', 'profile_photo', 'is_active'
+            ]);
+            $table->string('name')->nullable(false)->change();
+        });
     }
 };

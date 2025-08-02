@@ -13,6 +13,15 @@ return new class extends Migration
     {
         Schema::create('doctors', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->string('doctor_id')->unique();
+            $table->string('specialization');
+            $table->string('qualification');
+            $table->integer('experience_years');
+            $table->string('license_number');
+            $table->decimal('consultation_fee', 8, 2);
+            $table->json('working_hours')->nullable();
+            $table->boolean('is_available')->default(true);
             $table->timestamps();
         });
     }
